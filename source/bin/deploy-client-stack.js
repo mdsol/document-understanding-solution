@@ -14,9 +14,11 @@
 
 const cdk = require("@aws-cdk/core");
 const CdkTextractClientStack = require("../lib/cdk-textract-client-stack");
+const PermissionsBoundary = require('../lib/cdk-permission-boundary');
 
 const app = new cdk.App();
 const stackName = `${process.env.STACKNAME}ClientStack`;
 
 // eslint-disable-next-line no-new
-new CdkTextractClientStack.CdkTextractClientStack(app, stackName);
+const stack = new CdkTextractClientStack.CdkTextractClientStack(app, stackName);
+stack.node.applyAspect(new PermissionsBoundary.PermissionsBoundary(`arn:aws:iam::${cdk.Aws.ACCOUNT_ID}:policy/DataScience-PermissionBoundary`))

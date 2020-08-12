@@ -16,6 +16,7 @@ const cdk = require("@aws-cdk/core");
 const CdkTextractStack = require("../lib/cdk-textract-stack");
 const readlineSync = require("readline-sync");
 const fs = require("fs");
+const PermissionsBoundary = require('../lib/cdk-permission-boundary');
 
 const app = new cdk.App();
 const stackName = `${process.env.STACKNAME}Stack`;
@@ -29,9 +30,10 @@ const userEmail =
 const isCICDDeploy = process.env.ISCICD == "false" ? false : true;
 const enableKendra = process.env.ENABLE_KENDRA == "true"? true : false;
 // // eslint-disable-next-line no-new
-new CdkTextractStack.CdkTextractStack(app, stackName, {
+const stack = new CdkTextractStack.CdkTextractStack(app, stackName, {
   description : "MLSLD-S0001. Document Understanding Solution. This stack deploys the backend for DUS",
   email: userEmail,
   isCICDDeploy: isCICDDeploy,
   enableKendra: enableKendra
 });
+stack.node.applyAspect(new PermissionsBoundary.PermissionsBoundary(`arn:aws:iam::${cdk.Aws.ACCOUNT_ID}:policy/DataScience-PermissionBoundary`))
